@@ -225,7 +225,7 @@ def _setup_ddl_event_listeners():
 _setup_ddl_event_listeners()
 
 # Get version number
-__version__ = "MSSQL added to GeoAlchemy"
+__version__ = "1.4.6"
 # try:
 #     from pkg_resources import DistributionNotFound
 #     from pkg_resources import get_distribution
