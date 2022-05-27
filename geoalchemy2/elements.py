@@ -1,15 +1,12 @@
 import binascii
 import struct
 
-try:
-    from sqlalchemy.sql import functions
-    from sqlalchemy.sql.functions import FunctionElement
-except ImportError:  # SQLA < 0.9  # pragma: no cover
-    from sqlalchemy.sql import expression as functions
-    from sqlalchemy.sql.expression import FunctionElement
+from sqlalchemy.sql import functions
+# from sqlalchemy.sql.functions import FunctionElement
 
-from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.types import to_instance
+
+# from sqlalchemy.ext.compiler import compiles
+# from sqlalchemy.types import to_instance
 
 from .exc import ArgumentError
 
@@ -240,18 +237,18 @@ class RasterElement(_SpatialElement):
         return desc
 
 
-class CompositeElement(FunctionElement):
-    """Instances of this class wrap a Postgres composite type."""
+# class CompositeElement(FunctionElement):
+#     """Instances of this class wrap a Postgres composite type."""
+#
+#     inherit_cache = False
+#
+#     def __init__(self, base, field, type_):
+#         self.name = field
+#         self.type = to_instance(type_)
+#
+#         super(CompositeElement, self).__init__(base)
 
-    inherit_cache = False
 
-    def __init__(self, base, field, type_):
-        self.name = field
-        self.type = to_instance(type_)
-
-        super(CompositeElement, self).__init__(base)
-
-
-@compiles(CompositeElement)
-def _compile_pgelem(expr, compiler, **kw):
-    return '(%s).%s' % (compiler.process(expr.clauses, **kw), expr.name)
+# @compiles(CompositeElement)
+# def _compile_pgelem(expr, compiler, **kw):
+#     return '(%s).%s' % (compiler.process(expr.clauses, **kw), expr.name)

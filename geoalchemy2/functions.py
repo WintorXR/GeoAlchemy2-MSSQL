@@ -125,7 +125,7 @@ class ST_AsGeoJSON(_GeoFunctionBase):
     inherit_cache = True
 
     def __init__(self, *args, **kwargs):
-        expr = kwargs.pop('expr', None)
+        expr = kwargs.pop("expr", None)
         args = list(args)
         if expr is not None:
             args = [expr] + args
@@ -153,9 +153,10 @@ class ST_AsGeoJSON(_GeoFunctionBase):
     __doc__ = (
         'Return the geometry as a GeoJSON "geometry" object, or the row as a '
         'GeoJSON feature" object (PostGIS 3 only). (Cf GeoJSON specifications RFC '
-        '7946). 2D and 3D Geometries are both supported. GeoJSON only support SFS '
-        '1.1 geometry types (no curve support for example). '
-        'See https://postgis.net/docs/ST_AsGeoJSON.html')
+        "7946). 2D and 3D Geometries are both supported. GeoJSON only support SFS "
+        "1.1 geometry types (no curve support for example). "
+        "See https://postgis.net/docs/ST_AsGeoJSON.html"
+    )
 
 
 @compiles(TableRowElement)
@@ -214,7 +215,7 @@ class GenericFunction(_GeoFunctionBase):
     _register = False
 
     def __init__(self, *args, **kwargs):
-        expr = kwargs.pop('expr', None)
+        expr = kwargs.pop("expr", None)
         args = list(args)
         if expr is not None:
             args = [expr] + args
@@ -233,26 +234,26 @@ class GenericFunction(_GeoFunctionBase):
 # Iterate through _FUNCTIONS and create GenericFunction classes dynamically
 for name, type_, doc in _FUNCTIONS:
     attributes = {
-        'name': name,
-        'inherit_cache': True,
+        "name": name,
+        "inherit_cache": True,
     }
     docs = []
 
     if isinstance(doc, tuple):
         docs.append(doc[0])
-        docs.append('see http://postgis.net/docs/{0}.html'.format(doc[1]))
+        docs.append("see http://postgis.net/docs/{0}.html".format(doc[1]))
     elif doc is not None:
         docs.append(doc)
-        docs.append('see http://postgis.net/docs/{0}.html'.format(name))
+        docs.append("see http://postgis.net/docs/{0}.html".format(name))
 
     if type_ is not None:
-        attributes['type'] = type_
+        attributes["type"] = type_
 
-        type_str = '{0}.{1}'.format(type_.__module__, type_.__name__)
-        docs.append('Return type: :class:`{0}`.'.format(type_str))
+        type_str = "{0}.{1}".format(type_.__module__, type_.__name__)
+        docs.append("Return type: :class:`{0}`.".format(type_str))
 
     if len(docs) != 0:
-        attributes['__doc__'] = '\n\n'.join(docs)
+        attributes["__doc__"] = "\n\n".join(docs)
 
     globals()[name] = type(name, (GenericFunction,), attributes)
 
@@ -277,12 +278,14 @@ _SQLITE_FUNCTIONS = {
 def _compiles_default(cls):
     def _compile_default(element, compiler, **kw):
         return "{}({})".format(cls, compiler.process(element.clauses, **kw))
+
     compiles(globals()[cls])(_compile_default)
 
 
 def _compiles_sqlite(cls, fn):
     def _compile_sqlite(element, compiler, **kw):
         return "{}({})".format(fn, compiler.process(element.clauses, **kw))
+
     compiles(globals()[cls], "sqlite")(_compile_sqlite)
 
 

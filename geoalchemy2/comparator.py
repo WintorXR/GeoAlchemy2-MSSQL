@@ -46,6 +46,7 @@ from sqlalchemy import types as sqltypes
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from sqlalchemy.sql import operators
 from sqlalchemy.types import UserDefinedType
+from sqlalchemy.sql.expression import text
 
 try:
     from sqlalchemy.sql.functions import _FunctionGenerator
@@ -53,21 +54,21 @@ except ImportError:  # SQLA < 0.9  # pragma: no cover
     from sqlalchemy.sql.expression import _FunctionGenerator
 
 
-INTERSECTS = operators.custom_op('&&')
-INTERSECTS_ND = operators.custom_op('&&&')
-OVERLAPS_OR_TO_LEFT = operators.custom_op('&<')
-OVERLAPS_OR_TO_RIGHT = operators.custom_op('&>')
-OVERLAPS_OR_BELOW = operators.custom_op('&<|')
-TO_LEFT = operators.custom_op('<<')
-BELOW = operators.custom_op('<<|')
-TO_RIGHT = operators.custom_op('>>')
-CONTAINED = operators.custom_op('@')
-OVERLAPS_OR_ABOVE = operators.custom_op('|&>')
-ABOVE = operators.custom_op('|>>')
-CONTAINS = operators.custom_op('~')
-SAME = operators.custom_op('~=')
-DISTANCE_CENTROID = operators.custom_op('<->')
-DISTANCE_BOX = operators.custom_op('<#>')
+INTERSECTS = operators.custom_op("&&")
+INTERSECTS_ND = operators.custom_op("&&&")
+OVERLAPS_OR_TO_LEFT = operators.custom_op("&<")
+OVERLAPS_OR_TO_RIGHT = operators.custom_op("&>")
+OVERLAPS_OR_BELOW = operators.custom_op("&<|")
+TO_LEFT = operators.custom_op("<<")
+BELOW = operators.custom_op("<<|")
+TO_RIGHT = operators.custom_op(">>")
+CONTAINED = operators.custom_op("@")
+OVERLAPS_OR_ABOVE = operators.custom_op("|&>")
+ABOVE = operators.custom_op("|>>")
+CONTAINS = operators.custom_op("~")
+SAME = operators.custom_op("~=")
+DISTANCE_CENTROID = operators.custom_op("<->")
+DISTANCE_BOX = operators.custom_op("<#>")
 
 
 class BaseComparator(UserDefinedType.Comparator):
@@ -88,7 +89,7 @@ class BaseComparator(UserDefinedType.Comparator):
         # This is not to mess up with SQLAlchemy's use of
         # hasattr/getattr on Column objects.
 
-        if not name.lower().startswith('st_'):
+        if not name.lower().startswith("st_"):
             raise AttributeError
 
         # We create our own _FunctionGenerator here, and use it in place of
@@ -108,15 +109,13 @@ class BaseComparator(UserDefinedType.Comparator):
         """
         The ``&<`` operator. A's BBOX overlaps or is to the left of B's.
         """
-        return self.operate(OVERLAPS_OR_TO_LEFT, other,
-                            result_type=sqltypes.Boolean)
+        return self.operate(OVERLAPS_OR_TO_LEFT, other, result_type=sqltypes.Boolean)
 
     def overlaps_or_to_right(self, other):
         """
         The ``&>`` operator. A's BBOX overlaps or is to the right of B's.
         """
-        return self.operate(OVERLAPS_OR_TO_RIGHT, other,
-                            result_type=sqltypes.Boolean)
+        return self.operate(OVERLAPS_OR_TO_RIGHT, other, result_type=sqltypes.Boolean)
 
 
 class Comparator(BaseComparator):
@@ -131,8 +130,7 @@ class Comparator(BaseComparator):
         """
         The ``&<|`` operator. A's BBOX overlaps or is below B's.
         """
-        return self.operate(OVERLAPS_OR_BELOW, other,
-                            result_type=sqltypes.Boolean)
+        return self.operate(OVERLAPS_OR_BELOW, other, result_type=sqltypes.Boolean)
 
     def to_left(self, other):
         """
@@ -188,8 +186,7 @@ class Comparator(BaseComparator):
         """
         The ``|&>`` operator. A's BBOX overlaps or is above B's.
         """
-        return self.operate(OVERLAPS_OR_ABOVE, other,
-                            result_type=sqltypes.Boolean)
+        return self.operate(OVERLAPS_OR_ABOVE, other, result_type=sqltypes.Boolean)
 
     def above(self, other):
         """
@@ -201,7 +198,16 @@ class Comparator(BaseComparator):
         """
         The ``~`` operator. A's BBOX contains B's.
         """
-        return self.operate(CONTAINS, other, result_type=sqltypes.Boolean)
+        result = text(f"{self.expr}.STContains(geometry::STGeomFromText('{other}', 146)) = 1")
+
+        return result
+
+    def distance(self, other, **kw):
+        """
+        The ``~`` operator. A's BBOX contains B's.
+        """
+        result = f"{self.expr}.STDistance(geometry::STGeomFromText('{other}', 146))"
+        return result
 
     def same(self, other):
         """
@@ -213,8 +219,7 @@ class Comparator(BaseComparator):
         """
         The ``<->`` operator. The distance between two points.
         """
-        return self.operate(DISTANCE_CENTROID, other,
-                            result_type=DOUBLE_PRECISION)
+        return self.operate(DISTANCE_CENTROID, other, result_type=DOUBLE_PRECISION)
 
     def distance_box(self, other):
         """

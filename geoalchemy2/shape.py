@@ -47,6 +47,7 @@ if parse_version(shapely.__version__) < parse_version("1.7"):  # pragma: no cove
             return writer.write_hex(ob)
         else:
             return writer.write(ob)
+
     ######################################################################
 else:
     from shapely.wkb import dumps  # noqa
@@ -67,12 +68,11 @@ def to_shape(element):
     """
     assert isinstance(element, (WKBElement, WKTElement))
     if isinstance(element, WKBElement):
-        data, hex = (element.data, True) if isinstance(element.data, str) else \
-                    (bytes(element.data), False)
+        data, hex = (element.data, True) if isinstance(element.data, str) else (bytes(element.data), False)
         return shapely.wkb.loads(data, hex=hex)
     elif isinstance(element, WKTElement):
         if element.extended:
-            return shapely.wkt.loads(element.data.split(';', 1)[1])
+            return shapely.wkt.loads(element.data.split(";", 1)[1])
         else:
             return shapely.wkt.loads(element.data)
 
@@ -96,7 +96,4 @@ def from_shape(shape, srid=-1, extended=False):
         wkb_element = from_shape(Point(5, 45), srid=4326)
         ewkb_element = from_shape(Point(5, 45), srid=4326, extended=True)
     """
-    return WKBElement(
-        memoryview(dumps(shape, srid=srid if extended else None)),
-        srid=srid,
-        extended=extended)
+    return WKBElement(memoryview(dumps(shape, srid=srid if extended else None)), srid=srid, extended=extended)

@@ -18,7 +18,7 @@ from geoalchemy2 import func
 
 def render_item(obj_type, obj, autogen_context):
     """Apply custom rendering for selected items."""
-    if obj_type == 'type' and isinstance(obj, (Geometry, Geography, Raster)):
+    if obj_type == "type" and isinstance(obj, (Geometry, Geography, Raster)):
         import_name = obj.__class__.__name__
         autogen_context.imports.add(f"from geoalchemy2 import {import_name}")
         return "%r" % obj
@@ -33,15 +33,12 @@ def include_object(obj, name, obj_type, reflected, compare_to):
         if len(obj.expressions) == 1:
             try:
                 col = obj.expressions[0]
-                if (
-                    _check_spatial_type(col.type, (Geometry, Geography, Raster))
-                    and col.type.spatial_index
-                ):
+                if _check_spatial_type(col.type, (Geometry, Geography, Raster)) and col.type.spatial_index:
                     return False
             except AttributeError:
                 pass
     # Never include the spatial_ref_sys table
-    if (obj_type == "table" and name == "spatial_ref_sys"):
+    if obj_type == "table" and name == "spatial_ref_sys":
         return False
     return True
 
@@ -61,9 +58,7 @@ class AddGeospatialColumn(ops.AddColumnOp):
 
     def reverse(self):
         """Used to autogenerate the downgrade function."""
-        return DropGeospatialColumn.from_column_and_tablename(
-            self.schema, self.table_name, self.column.name
-        )
+        return DropGeospatialColumn.from_column_and_tablename(self.schema, self.table_name, self.column.name)
 
 
 @Operations.register_operation("drop_geospatial_column")
@@ -79,9 +74,7 @@ class DropGeospatialColumn(ops.DropColumnOp):
 
     def reverse(self):
         """Used to autogenerate the downgrade function."""
-        return AddGeospatialColumn.from_column_and_tablename(
-            self.schema, self.table_name, self.column
-        )
+        return AddGeospatialColumn.from_column_and_tablename(self.schema, self.table_name, self.column)
 
 
 @Operations.implementation_for(AddGeospatialColumn)
@@ -107,20 +100,13 @@ def add_geospatial_column(operations, operation):
         geospatial_core_type = operation.column.type
 
     if "sqlite" in dialect.name:
-        operations.execute(func.AddGeometryColumn(
-            table_name,
-            column_name,
-            geospatial_core_type.srid,
-            geospatial_core_type.geometry_type
-        ))
-    elif "postgresql" in dialect.name:
-        operations.add_column(
-            table_name,
-            Column(
-                column_name,
-                operation.column
+        operations.execute(
+            func.AddGeometryColumn(
+                table_name, column_name, geospatial_core_type.srid, geospatial_core_type.geometry_type
             )
         )
+    elif "postgresql" in dialect.name:
+        operations.add_column(table_name, Column(column_name, operation.column))
 
 
 @Operations.implementation_for(DropGeospatialColumn)
