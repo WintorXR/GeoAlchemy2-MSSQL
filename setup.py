@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='GeoAlchemy2',
-    use_scm_version=True,
+    version="146.0.0",
     description="Using SQLAlchemy with Spatial Databases",
     long_description=open('README.rst', encoding="utf-8").read(),
     classifiers=[
