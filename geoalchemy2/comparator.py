@@ -198,7 +198,7 @@ class Comparator(BaseComparator):
         """
         The ``~`` operator. A's BBOX contains B's.
         """
-        result = text(f"{self.expr}.STContains(geometry::STGeomFromText('{other}', 146)) = 1")
+        result = text(f"{self.expr}.STContains(geography::STGeomFromText('{other}', 4326)) = 1")
 
         return result
 
@@ -206,7 +206,7 @@ class Comparator(BaseComparator):
         """
         The ``~`` operator. A's BBOX contains B's.
         """
-        result = f"{self.expr}.STDistance(geometry::STGeomFromText('{other}', 146))"
+        result = f"{self.expr}.STDistance(geography::STGeomFromText('{other}', 4326))"
         return result
 
     def same(self, other):

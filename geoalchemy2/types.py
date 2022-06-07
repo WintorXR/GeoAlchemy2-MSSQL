@@ -152,13 +152,11 @@ class _GISType(UserDefinedType):
         self.nullable = nullable
 
     def get_col_spec(self):
-        print("runnign col spec")
         # if not self.geometry_type:
         return self.name
         # return "%s(%s,%d)" % (self.name, self.geometry_type, self.srid)
 
     def column_expression(self, col):
-        print("runnign col expression")
         """Specific column_expression that automatically adds a conversion function"""
         # text1 = text(f"{self.name}::STAsBinary (:{self.name}, {self.srid})").bindparams(col)
 
@@ -173,7 +171,6 @@ class _GISType(UserDefinedType):
         # )
 
     def result_processor(self, dialect, coltype):
-        print("runnign result processor")
         """Specific result_processor that automatically process spatial elements"""
 
         def process(value):
@@ -325,7 +322,7 @@ class Geography(_GISType):
     """ The ``FromText`` geography constructor. Used by the parent class'
         ``bind_expression`` method. """
 
-    as_binary = "ST_AsBinary"
+    as_binary = "STAsBinary"
     """ The "as binary" function to use. Used by the parent class'
         ``column_expression`` method. """
 
