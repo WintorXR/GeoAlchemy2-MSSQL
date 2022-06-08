@@ -12,7 +12,7 @@ from geoalchemy2.elements import WKTElement
 from tests.config import db_string
 
 conn_str = f"mssql+pyodbc:///?odbc_connect={quote_plus(db_string)}"
-engine = create_engine(conn_str, pool_pre_ping=True, pool_recycle=3600, pool_size=20, future=True, echo=False)
+engine = create_engine(conn_str, pool_pre_ping=True, pool_recycle=3600, pool_size=20, future=True, echo=True)
 db_session = scoped_session(sessionmaker(engine, future=True, expire_on_commit=False))
 db_session.connection().connection.add_output_converter(151, str)
 
@@ -58,9 +58,9 @@ for lake in query:
     # test_shape = to_shape(WKTElement(lake.geom))
     print(lake.name, lake.geom)
 
-dist = literal_column(Lake.geom.distance('POINT(4 1)')).label("distance")
+dist = literal_column(Lake.geom.distance('POINT(4 1)'))
 
-query = db_session.execute(select(Lake.name, Lake.geom, dist).select_from(Lake).order_by(dist)).all()
+query = db_session.scalars(select(Lake).order_by(dist)).all()
 
 for lake in query:
-    print(lake.name, lake.geom, lake.distance)
+    print(lake)

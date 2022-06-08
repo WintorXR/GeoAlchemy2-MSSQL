@@ -209,6 +209,10 @@ class Comparator(BaseComparator):
         result = f"{self.expr}.STDistance(geography::STGeomFromText('{other}', 4326))"
         return result
 
+    def as_text(self):
+        result = text(f"{self.expr}.STAsText()")
+        return result
+
     def same(self, other):
         """
         The ``~=`` operator. A's BBOX is the same as B's.

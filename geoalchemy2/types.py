@@ -160,10 +160,7 @@ class _GISType(UserDefinedType):
         """Specific column_expression that automatically adds a conversion function"""
         # text1 = text(f"{self.name}::STAsBinary (:{self.name}, {self.srid})").bindparams(col)
 
-        exp = f"{col.key}.STAsText()"
-        f1 = text(exp)
-        f2 = func.IIF(col == None, None, f1, type_=self)
-        return f2
+        return func.IIF(col == None, None, col.as_text(), type_=self)
         # select
         # return text1
         # return func.IIF(col == None, None, text1, type=self)
